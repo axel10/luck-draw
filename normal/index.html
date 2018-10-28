@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="lib/js/jquery.js"></script>
+    <style>
+        .container {
+            width: 800px;
+            height: 600px;
+            background-color: #ffd503;
+            margin: 100px auto;
+            position: relative;
+        }
+
+        .wrap {
+            height: 95%;
+            width: 95%;
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            margin: auto;
+            background-color: #ff5800;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .items {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 10px;
+        }
+
+        .cj-item {
+            width: 32%;
+            height: 32%;
+            border-radius: 5px;
+            background-color: #ffdf08;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+        }
+
+        .begin {
+            background-color: #ffa156;
+        }
+
+        .cj-item.current {
+            background-color: #c94500;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="wrap">
+        <div class="items">
+            <div data-order="1" data-id="0" class="cj cj-item current"></div>
+            <div data-order="2" data-id="1" class="cj cj-item"></div>
+            <div data-order="3" data-id="2" class="cj cj-item"></div>
+            <div data-order="8" data-id="3" class="cj cj-item"></div>
+            <div class=" cj-item begin">开始</div>
+            <div data-order="4" data-id="4" class="cj cj-item"></div>
+            <div data-order="7" data-id="5" class="cj cj-item"></div>
+            <div data-order="6" data-id="6" class="cj cj-item"></div>
+            <div data-order="5" data-id="7" class="cj cj-item"></div>
+        </div>
+    </div>
+</div>
+
+<script type="text/html" id="item">
+    <div class="item">{{test}}{{aaa}}{{bbb}}</div>
+</script>
+
+
+<script>
+
+
+    function begin() {
+        const cjItems = $('.cj').sort(function (o1, o2) {
+            return Number($(o1).data('order')) - Number($(o2).data('order'))
+        });
+        let res = null;
+
+        function nextStep(index, timeout) {
+            setTimeout(() => {
+                cjItems.removeClass('current');
+                cjItems.eq(index).addClass('current');
+                const distIndex = (index + 1) % 8;
+                if (res !== null) {
+                    console.log(cjItems);
+                    var plainArr = Array.prototype.slice.call(cjItems)
+                    const resIndex = plainArr.findIndex(o => {
+                        return Number($(o).data('id')) === res.resultId
+                    }) - 4;
+                    // 开始减速的index
+                    const slowIndex = resIndex < 0 ? 7 + resIndex : resIndex;
+
+                    if (slowIndex > res.resultId && (index >= slowIndex || index < res.resultId)) {
+                        nextStep(distIndex, timeout + 100)
+                        return
+                    }
+                    if (slowIndex < res.resultId) {
+                        nextStep(distIndex, timeout + 100)
+                        return
+                    }
+                    if (index === res.resultId) {
+                        console.log('done');
+                        return
+                    }
+                    nextStep(distIndex, timeout);
+                    return
+                }
+                if (timeout <= 100) {
+                    nextStep(distIndex, timeout)
+                } else {
+                    nextStep(distIndex, timeout - 100)
+                }
+            }, timeout)
+        }
+        nextStep(0, 500)
+        setTimeout(() => {
+            res = {
+                resultId: 1
+            }
+        }, 3000);
+    }
+
+    $('.begin').on('click', function () {
+        begin()
+    })
+</script>
+
+<!--<script>
+    var obj = {test:'akakakakk'};
+    function replaceHtml(data) {
+        for(var key in data){
+            const el = document.querySelector(`[data-bind="${key}"`);
+            if (el) {
+                el.innerHTML = data[key]
+            }
+        }
+    }
+
+    var tmpl = document.querySelector('#item').innerHTML;
+    var reg = /\{\{(.*?)\}\}/g;
+    tmpl.replace(reg,function (o,i,t,b) {
+        console.log(o,i,t,b);
+    });
+
+    /**
+     *
+     * @param {Array} arr
+     * @param {string} templateId
+     * @param {string} containerSelector
+     */
+    function arrToHtml(arr, templateId,containerSelector) {
+        var reg = /\{\{(.*?)\}\}/g;
+        var resArr = [];
+        arr.forEach(o=>{
+            var tmpl = document.querySelector('#'+templateId).innerHTML;
+            tmpl = tmpl.replace(reg,function (match, param) {
+                return o[param]
+            });
+            resArr.push(tmpl)
+        });
+        console.log(resArr);
+        resArr.forEach(function (item,i) {
+            $(containerSelector).append($(item))
+        })
+    }
+
+    arrToHtml([{test:'1',aaa:'a','bbb':'b'},{test:'1',aaa:'a','bbb':'b'},{test:'1',aaa:'a','bbb':'b'}],'item','')
+</script>-->
+
+</body>
+</html>
