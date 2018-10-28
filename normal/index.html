@@ -96,7 +96,6 @@
                 cjItems.eq(index).addClass('current');
                 const distIndex = (index + 1) % 8;
                 if (res !== null) {
-                    console.log(cjItems);
                     var plainArr = Array.prototype.slice.call(cjItems)
                     const resIndex = plainArr.findIndex(o => {
                         return Number($(o).data('id')) === res.resultId
@@ -127,6 +126,7 @@
             }, timeout)
         }
         nextStep(0, 500)
+        // 模拟请求服务端
         setTimeout(() => {
             res = {
                 resultId: 1
